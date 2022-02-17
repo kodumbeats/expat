@@ -23,7 +23,8 @@ defmodule Expat.MixProject do
   defp deps do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
-      {:docker, git: "https://github.com/hexedpackets/docker-elixir.git", tag: "0.4.0"}
+      {:docker, git: "https://github.com/hexedpackets/docker-elixir.git", tag: "0.4.0"},
+      {:yaml_elixir, "~> 2.8.0"},
     ]
   end
 end

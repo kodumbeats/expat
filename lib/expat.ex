@@ -1,29 +1,13 @@
 defmodule Expat do
   use Application
 
-  alias Expat.Registry, as: Registry
-  alias Expat.Registry.Bucket, as: KV
+  alias Expat.Registry, as: KV
 
   @impl true
   def start(_type, _args) do
     {:ok, pid} = Expat.Supervisor.start_link(name: Expat.Supervisor)
-    Expat.Registry.create(Expat.Registry, :containers)
+    KV.create(KV, :containers)
     {:ok, pid}
-  end
-
-  def name do
-    "redis"
-  end
-  def image do
-    "redis:latest"
-  end
-  def conf do
-    %{
-      "AttachStdin" => false,
-      "Image" => image(),
-      "Volumes" => %{},
-      "ExposedPorts" => %{},
-    }
   end
 
   def listImageIds do
@@ -36,13 +20,32 @@ defmodule Expat do
   end
 
   def up do
-    pull(image())
-    run!(name(), conf())
-    :ok
+    path = Path.join(File.cwd!(), "compose.yml")
+    {:ok, compose} = YamlElixir.read_from_file(path)
+    services = Map.get(compose, "services")
+    Enum.each(services, fn {k,v} -> {pull_and_run(k,v)} end)
+  end
+
+  def pull_and_run(name, props) do
+    pull(props["image"])
+
+    ports = props["ports"]
+    port = hd(ports)
+    [ext, _int] = String.split(port, ":")
+    ext = ext <> "/tcp"
+    conf = %{
+      "AttachStdin" => false,
+      "Image" => props["image"],
+      "Volumes" => %{},
+      "ExposedPorts" => %{
+        ext => %{}
+      },
+    }
+    run!(name, conf)
   end
 
   @doc"""
-  image: `image:tag` 
+  image: `image:tag`
   """
   def pull(image) do
     [image, tag] = String.split(image, ":")
@@ -59,8 +62,7 @@ defmodule Expat do
       %{"Id" => id, "Warnings" => _warnings} -> id
       %{"message" => message} -> raise message
     end
-    {:ok, containers} = Registry.lookup(Registry, :containers)
-    KV.put(containers, id, :created)
+    KV.put(KV, :containers, id, :created)
     id
   end
 
@@ -69,7 +71,6 @@ defmodule Expat do
       "" -> :ok
       error -> raise error
     end
-    {:ok, containers} = Registry.lookup(Registry, :containers)
-    KV.put(containers, id, :running)
+    KV.put(KV, :containers, id, :running)
   end
 end
