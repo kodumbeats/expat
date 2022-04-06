@@ -24,3 +24,10 @@ expat-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Motive
+manifest
+
+# Expat
+*aspire
+data

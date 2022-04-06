@@ -8,8 +8,14 @@ defmodule Expat.Supervisor do
   @impl true
   def init(:ok) do
     children = [
-      {Expat.Registry, name: Expat.Registry}
+      {Expat.Registry, name: Expat.Registry},
+      {Cluster.Supervisor,
+       [
+         Application.get_env(:libcluster, :topologies),
+         [name: Expat.ClusterSupervisor]
+       ]}
     ]
+
     Supervisor.init(children, strategy: :one_for_one)
   end
 end

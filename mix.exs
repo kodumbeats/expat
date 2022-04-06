@@ -24,7 +24,9 @@ defmodule Expat.MixProject do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
       {:docker, git: "https://github.com/kodumbeats/docker-elixir.git", branch: "feat-networks"},
-      {:yaml_elixir, "~> 2.8.0"},
+      {:khepri, "0.2.1"},
+      {:libcluster, "~> 3.3"},
+      {:yaml_elixir, "~> 2.8.0"}
     ]
   end
 end
