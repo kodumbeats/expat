@@ -11,7 +11,7 @@ defmodule Expat do
   def listImageIds do
     Docker.Images.list()
     # Grab just the ids
-    |> Enum.map(& &1["Id"])
+    |> Enum.map(&(&1["Id"]))
     # Remove prepended "sha256:"
     |> Enum.map(&String.split(&1, ":"))
     |> Enum.map(&hd(tl(&1)))
